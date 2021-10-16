@@ -1,2 +1,0 @@
-package app.khadga.eskatos
-
