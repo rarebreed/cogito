@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "aws-test",
     "ignite",
     "alonzo",
     "reveles"
