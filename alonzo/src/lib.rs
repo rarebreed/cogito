@@ -12,10 +12,6 @@ fn pipe<A, B, C>(f1: impl Fn(A) -> B, f2: impl Fn(B) -> C) -> impl Fn(A) -> C {
     }
 }
 
-fn double(x: u64) -> u64 {
-     x * 2 
-}
-
 
 #[cfg(test)]
 mod tests {
