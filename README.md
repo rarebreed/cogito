@@ -11,9 +11,9 @@ also use some scala3 and python3.10.  As a cargo workspace project, it will cont
 - ignite: a project to help learn spark by writing test results as parquet and doing analytics
 - reveles: create from scratch neural networks to learn machine learning
 - notebooks: set of notebooks on various topics
-- fuse: port of ignite to use DataFusion instead of Spark
-- alonzo: FP library in scala3
-- sentinel: an http4s or warp server listening to SQS and kafka
+- crossbow: port of ignite to use DataFusion+Ballista instead of Spark
+- alonzo: FP library in rust
+- sentinel: an actix-rs server listening to SQS and kafka
 - venturi: airflow service with dag examples
 - crucible: examines test results, logs, code, and metrics to help find patterns and anomalies
 
