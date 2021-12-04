@@ -1,5 +1,5 @@
 [package]
-name = "rocked"
+name = "crossbow"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 clap = "2.33"
 tokio = { version = "1", features = ["full"] }
+chrono = "0.4"

@@ -1,0 +1,5 @@
+custom:
+  rust:
+    target: ""
+    version: "1.57.0"  # Optional
+  
