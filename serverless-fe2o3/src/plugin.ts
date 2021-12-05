@@ -3,21 +3,6 @@ import { RustOptions, x86_64_linux, aarch64_linux, DockerOptions } from "./data"
 import { dirname } from "path"
 import { spawn } from "child_process"
 
-const run = (cmd: string, args: string[]) => {
-  const command = spawn(cmd, args);
-
-  command.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
-  command.on('close', (code) => {
-    console.log(`child process close all stdio with code ${code}`);
-  });
-
-  command.on('exit', (code) => {
-    console.log(`child process exited with code ${code}`);
-  });
-}
 
 class RustPlugin {
   serverless: Serverless
@@ -46,6 +31,28 @@ class RustPlugin {
 
   }
 
+  /**
+   * Simple function that runs a command asynchronously
+   * 
+   * @param cmd 
+   * @param args 
+   * @returns 
+   */
+  run = async (cmd: string, args: string[]): Promise<number> => {
+    const command = spawn(cmd, args);
+
+    command.stdout.on('data', (data) => {
+      this.serverless.cli.log(`stdout: ${data}`);
+    });
+
+    return new Promise((
+      resolve: (code: number) => void,
+      reject: (err: string) => void
+    ) => {
+      command.on("exit", resolve)
+    })
+  }
+
   cargo = (): string => {
     const { pkg, target } = this.options
     return `cargo build --release --package ${pkg} --target ${target}`
@@ -55,8 +62,8 @@ class RustPlugin {
     return `${dirname(__dirname)}/${dockerType}/Dockerfile`
   }
 
-  // Executes the docker run command
-  buildLambda = () => {
+  // Executes the docker rcommands to possibly build the image, and run it
+  buildLambda = async () => {
     const { src_dir, version } = this.options
     const volume = `-v ${src_dir}:/code`
     const rustBuildArg = `--build-arg RUST_TARGET=${version}`
@@ -68,8 +75,15 @@ class RustPlugin {
     if (build) {
       const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${src_dir}`
       // Run the dockerBuildCmd
+      const [ cmd, ...args ] = dockerBuildCmd.split(" ")
+      const exitVal = await this.run(cmd, args)
+    } else {
+      // Make sure we have a build image. and if not pull it down
     }
+
     const dockerRunCmd = `docker run -it --name fe2o3 -v ${volume} ${tag} ${this.cargo()}`
     // run the dockerRunCmd
+    const [ cmd, ...args ] = dockerRunCmd.split(' ')
+    const runExitVal = await this.run(cmd, args)
   }
 }
