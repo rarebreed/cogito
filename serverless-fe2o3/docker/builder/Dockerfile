@@ -14,7 +14,8 @@ RUN mkdir /code; \
     url="https://static.rust-lang.org/rustup/archive/1.24.3/${RUST_TARGET}/rustup-init"; \
     wget "$url"; \
     chmod +x rustup-init; \
-    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${RUST_TARGET};
+    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${RUST_TARGET}; \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME;
 
 WORKDIR /code
 

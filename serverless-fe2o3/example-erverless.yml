@@ -1,5 +1,11 @@
 custom:
   rust:
-    target: ""
-    version: "1.57.0"  # Optional
-  
+    package: my-package  # name of your package
+    target: ""           # Optional, defaults to x86_64-unknown-linux-gnu
+    toolchain: stable    # Optional, defaults to stable     
+    version: 1.57.0      # Optional, defaults to latest
+    src_dir: /path/to/project # Optional, defaults to current directory
+  docker:
+    build: true          # Optional. build the docker image defaults to true
+    tag: ""              # Required if build is true. docker tag
+    
