@@ -1,26 +1,28 @@
-import Serverless from "serverless"
-import { RustOptions, x86_64_linux, aarch64_linux, DockerOptions } from "./data"
-import { dirname } from "path"
-import { spawn } from "child_process"
+//import { dirname } from "path"
+const { dirname } = require("path")
+const { spawn } = require("child_process")
 
+const x86_64_linux = "x86_64-unknown-linux-gnu"
+const aarch64_linux = "aarch64-unknown-linux-gnu"
 
 class RustPlugin {
-  serverless: Serverless
-  options: RustOptions
-  docker: DockerOptions
+  // serverless: Serverless
+  // options: RustOptions
+  // docker: DockerOptions
 
-  constructor(serverless: Serverless, options: any) {
+  constructor(serverless, options) {
     this.serverless = serverless
 
-    const { rustOpts } = this.serverless.service.custom.rust ?? {}
-    let { target, version, toolchain, pkg, src_dir } = rustOpts
+    const { rust: rustOpts } = this.serverless.service.custom ?? {}
+    this.serverless.cli.log(`rustOpts = ${JSON.stringify(rustOpts, null, 2)}`)
+    let { pkg } = rustOpts
     if (!pkg) throw new Error("Must supply package")
 
     this.options = {
-      target: target || x86_64_linux,
-      version: version || "1.57.0",
-      toolchain: toolchain || "stable",
-      src_dir: src_dir || process.cwd(),
+      target: rustOpts.target || x86_64_linux,
+      version: rustOpts.version || "1.57.0",
+      toolchain: rustOpts.toolchain || "stable",
+      src_dir: rustOpts.src_dir || process.cwd(),
       pkg
     }
 
@@ -29,16 +31,20 @@ class RustPlugin {
     }
     this.docker = docker
 
+    this.hooks = {
+    
+    }
+
   }
 
   /**
    * Simple function that runs a command asynchronously
    * 
-   * @param cmd 
-   * @param args 
-   * @returns 
+   * @param string: cmd 
+   * @param string[]: args 
+   * @returns Promise<number>
    */
-  run = async (cmd: string, args: string[]): Promise<number> => {
+  run = async (cmd, args) => {
     const command = spawn(cmd, args);
 
     command.stdout.on('data', (data) => {
@@ -46,19 +52,20 @@ class RustPlugin {
     });
 
     return new Promise((
-      resolve: (code: number) => void,
-      reject: (err: string) => void
+      resolve, // (code: number) => void,
+      reject   // (err: string) => void
     ) => {
       command.on("exit", resolve)
     })
   }
 
-  cargo = (): string => {
+  cargo = () => {
     const { pkg, target } = this.options
     return `cargo build --release --package ${pkg} --target ${target}`
   }
 
-  dockerFile = (dockerType: "builder" | "tester") => {
+  // dockerType: "builder" | "tester"
+  dockerFile = (dockerType) => {
     return `${dirname(__dirname)}/${dockerType}/Dockerfile`
   }
 
@@ -87,3 +94,5 @@ class RustPlugin {
     const runExitVal = await this.run(cmd, args)
   }
 }
+
+module.exports = RustPlugin

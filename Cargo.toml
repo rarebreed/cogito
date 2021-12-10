@@ -4,5 +4,10 @@ members = [
     "crossbow",
     "ignite",
     "alonzo",
-    "reveles"
+    "reveles",
+    "lambda-example"
+]
+
+excludes = [
+    "serverless-fe2o3"
 ]

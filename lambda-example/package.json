@@ -1,0 +1,16 @@
+{
+  "name": "lambda-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless": "^2.68.0",
+    "serverless-fe2o3": "file:../serverless-fe2o3"
+  }
+}
