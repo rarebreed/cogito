@@ -1,6 +1,8 @@
 //import { dirname } from "path"
-const { dirname } = require("path")
-const { spawn } = require("child_process")
+const path = require("path")
+const { spawnSync } = require("child_process")
+const { copyFileSync, dirname, mkdtempSync } = require("fs")
+const os = require("os")
 
 const x86_64_linux = "x86_64-unknown-linux-gnu"
 const aarch64_linux = "aarch64-unknown-linux-gnu"
@@ -30,11 +32,26 @@ class RustPlugin {
       build: true, tag: pkg, extras: []
     }
     this.docker = docker
+    this.log = this.serverless.cli.log
 
+    // hooks to call into the plugin's functionality
     this.hooks = {
-    
-    }
-
+      "before:package:createDeploymentArtifacts": () => {
+        this.log("In before:package:createDeploymentArtifacts")
+        this.buildLambda()
+      },
+      "before:deploy:function:packageFunction": () => {
+        this.log("In before:deploy:function:packageFunction")
+      },
+      "before:offline:start": () => {
+        this.log("in before:offline:start event")
+        //this.buildLambda()
+      },
+      "before:offline:start:init": () => {
+        this.log("in before:offline:start:init")
+        //this.buildLambda()
+      },
+    };
   }
 
   /**
@@ -44,36 +61,39 @@ class RustPlugin {
    * @param string[]: args 
    * @returns Promise<number>
    */
-  run = async (cmd, args) => {
-    const command = spawn(cmd, args);
-
-    command.stdout.on('data', (data) => {
-      this.serverless.cli.log(`stdout: ${data}`);
+  run = (cmd, args, env) => {
+    const command = spawnSync(cmd, args, {
+      stdio: ["ignore", process.stdout, process.stderr],
+      env: env || process.env
     });
 
-    return new Promise((
-      resolve, // (code: number) => void,
-      reject   // (err: string) => void
-    ) => {
-      command.on("exit", resolve)
-    })
+    return command.status
   }
 
   cargo = () => {
-    const { pkg, target } = this.options
-    return `cargo build --release --package ${pkg} --target ${target}`
+    const { pkg } = this.options
+    return `builder-fe2o3.sh ${pkg}`
   }
 
   // dockerType: "builder" | "tester"
   dockerFile = (dockerType) => {
-    return `${dirname(__dirname)}/${dockerType}/Dockerfile`
+    return `${path.dirname(__dirname)}/docker/${dockerType}/Dockerfile`
+  }
+
+  copyBuilder = () => {
+    const parent = dirname(__dirname)
+    const source = `${parent}/docker/builder/builder.sh`
+    const tmp = mkdtempSync(path.join(os.tmpdir(), "builder-")) 
+    copyFileSync(source, `${tmp}/builder.sh`)
+    return tmp
   }
 
   // Executes the docker rcommands to possibly build the image, and run it
-  buildLambda = async () => {
-    const { src_dir, version } = this.options
+  buildLambda = () => {
+    const { src_dir, version, target } = this.options
+    // mount the rust source code into the container's /code
     const volume = `-v ${src_dir}:/code`
-    const rustBuildArg = `--build-arg RUST_TARGET=${version}`
+    const rustBuildArg = `--build-arg RUST_TARGET=${target}`
     const { extras, tag, build } = this.docker
     const extraBuildArgs = extras.length != 0 ? `--build-arg EXTRAS="${extras.join(" ")}"` : ""
     const buildArgs = `${rustBuildArg} ${extraBuildArgs}`
@@ -83,15 +103,20 @@ class RustPlugin {
       const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${src_dir}`
       // Run the dockerBuildCmd
       const [ cmd, ...args ] = dockerBuildCmd.split(" ")
-      const exitVal = await this.run(cmd, args)
+      this.log(`Executing: ${cmd} ${args.filter(s => s != "")}`)
+      const exitVal = this.run(cmd, args.filter(s => s != ""))
     } else {
-      // Make sure we have a build image. and if not pull it down
+      // TODO: Make sure we have a build image. and if not pull it down
     }
 
     const dockerRunCmd = `docker run -it --name fe2o3 -v ${volume} ${tag} ${this.cargo()}`
     // run the dockerRunCmd
     const [ cmd, ...args ] = dockerRunCmd.split(' ')
-    const runExitVal = await this.run(cmd, args)
+    const env = Object.assign({ 
+      RUST_BUILD_VERSION: version,
+      RUST_TARGET: target
+    }, process.env)
+    const runExitVal = this.run(cmd, args, env)
   }
 }
 
