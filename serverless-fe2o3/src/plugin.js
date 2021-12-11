@@ -109,15 +109,18 @@ class RustPlugin {
       // TODO: Make sure we have a build image. and if not pull it down
     }
 
-    const dockerRunCmd = `docker run -it --name fe2o3 ${volume} ${tag} ${this.cargo()}`
-    this.log(`Running ${dockerRunCmd}`)
+    let { uid, gid } = os.userInfo()
+    const dockerRunCmd = `docker run --user ${uid}:${gid} --name fe2o3 ${volume} ${tag} ${this.cargo()}`
     // run the dockerRunCmd
     const [ cmd, ...args ] = dockerRunCmd.split(' ')
+    this.log(`Running ${cmd} ${args}`)
     const env = Object.assign({ 
       RUST_BUILD_VERSION: version,
       RUST_TARGET: target
     }, process.env)
-    const runExitVal = this.run(cmd, args, env)
+    let runArgs = args.filter(s => s != "")
+    const runExitVal = this.run(cmd, runArgs, env)
+    this.log(`exitval = ${runExitVal}`)
   }
 }
 
