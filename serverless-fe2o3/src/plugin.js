@@ -28,9 +28,9 @@ class RustPlugin {
       pkg
     }
 
-    let docker = this.serverless.service.custom.docker ?? {
+    let docker = Object.assign({
       build: true, tag: pkg, extras: []
-    }
+    }, this.serverless.service.custom.docker || {})
     this.docker = docker
     this.log = this.serverless.cli.log
 
@@ -109,7 +109,8 @@ class RustPlugin {
       // TODO: Make sure we have a build image. and if not pull it down
     }
 
-    const dockerRunCmd = `docker run -it --name fe2o3 -v ${volume} ${tag} ${this.cargo()}`
+    const dockerRunCmd = `docker run -it --name fe2o3 ${volume} ${tag} ${this.cargo()}`
+    this.log(`Running ${dockerRunCmd}`)
     // run the dockerRunCmd
     const [ cmd, ...args ] = dockerRunCmd.split(' ')
     const env = Object.assign({ 

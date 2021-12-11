@@ -1,5 +1,6 @@
 #!/bin/sh -xe
-PACKAGE=$1
+SRC_DIR=$1
+PACKAGE=$2
 
 if [ -z "$RUST_TARGET" ]; then
   RUST_TARGET=x86_64-unknown-linux-gnu
@@ -13,6 +14,11 @@ if [ ! -z "$RUST_BUILD_VERSION" ]; then
   rustup show
 fi
 
+cd "$SRC_DIR"
+
 cargo build --release --package $PACKAGE --target $RUST_TARGET
 cp target/$RUST_TARGET/release/$PACKAGE bootstrap
 zip lambda.zip bootstrap
+ls -al
+
+cd -

@@ -19,7 +19,7 @@ RUN mkdir /code; \
     chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
     cd /tmp; \
     git clone https://github.com/rarebreed/cogito.git; \
-    cp /tmp/cogito/serverless-fe2o3/docker/builder/builder-fe2o3.sh /code;
+    cp /tmp/cogito/serverless-fe2o3/docker/builder/builder-fe2o3.sh /usr/local/bin;
 
 WORKDIR /code
 

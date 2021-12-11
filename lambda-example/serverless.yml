@@ -27,6 +27,8 @@ custom:
   rust:
     version: 1.57.0
     pkg: lambda-example
+  docker:
+    build: false
 
 package:
   artifact: lambda.zip
