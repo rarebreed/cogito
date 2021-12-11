@@ -15,6 +15,9 @@ class RustPlugin {
   constructor(serverless, options) {
     this.serverless = serverless
 
+    this.containerName = "fe2o3"
+
+    // Get values from custom.rust
     const { rust: rustOpts } = this.serverless.service.custom ?? {}
     this.serverless.cli.log(`rustOpts = ${JSON.stringify(rustOpts, null, 2)}`)
     let { pkg } = rustOpts
@@ -28,10 +31,12 @@ class RustPlugin {
       pkg
     }
 
+    // Get values from custom.docker
     let docker = Object.assign({
       build: true, tag: pkg, extras: []
     }, this.serverless.service.custom.docker || {})
     this.docker = docker
+
     this.log = this.serverless.cli.log
 
     // hooks to call into the plugin's functionality
@@ -70,7 +75,11 @@ class RustPlugin {
     return command.status
   }
 
-  cargo = () => {
+  /**
+   * 
+   * @returns 
+   */
+  buildScript = () => {
     const { pkg } = this.options
     return `builder-fe2o3.sh ${pkg}`
   }
@@ -80,28 +89,31 @@ class RustPlugin {
     return `${path.dirname(__dirname)}/docker/${dockerType}/Dockerfile`
   }
 
-  copyBuilder = () => {
-    const parent = dirname(__dirname)
-    const source = `${parent}/docker/builder/builder.sh`
-    const tmp = mkdtempSync(path.join(os.tmpdir(), "builder-")) 
-    copyFileSync(source, `${tmp}/builder.sh`)
-    return tmp
+  /**
+   * Stops and removes a container
+   */
+  removeContainer = (name) => {
+    if (!name) {
+      name = this.containerName
+    }
+    this.run("docker", ["stop", name])
+    this.run("docker", ["rm", name])
   }
 
   // Executes the docker rcommands to possibly build the image, and run it
   buildLambda = () => {
     const { src_dir, version, target } = this.options
+    const { extras, tag, build } = this.docker
+    
     // mount the rust source code into the container's /code
     const volume = `-v ${src_dir}:/code`
     const rustBuildArg = `--build-arg RUST_TARGET=${target}`
-    const { extras, tag, build } = this.docker
     const extraBuildArgs = extras.length != 0 ? `--build-arg EXTRAS="${extras.join(" ")}"` : ""
     const buildArgs = `${rustBuildArg} ${extraBuildArgs}`
 
     const dockerPath = this.dockerFile("builder")
     if (build) {
       const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${src_dir}`
-      // Run the dockerBuildCmd
       const [ cmd, ...args ] = dockerBuildCmd.split(" ")
       this.log(`Executing: ${cmd} ${args.filter(s => s != "")}`)
       const exitVal = this.run(cmd, args.filter(s => s != ""))
@@ -109,17 +121,22 @@ class RustPlugin {
       // TODO: Make sure we have a build image. and if not pull it down
     }
 
-    let { uid, gid } = os.userInfo()
-    const dockerRunCmd = `docker run --user ${uid}:${gid} --name fe2o3 ${volume} ${tag} ${this.cargo()}`
+    // Need to remove container before running
+    this.removeContainer()
+
+
+    const dockerRunCmd = `docker run --user ${uid}:${gid} --name fe2o3 ${envArgs} ${volume} ${tag} ${this.buildScript()}`
     // run the dockerRunCmd
     const [ cmd, ...args ] = dockerRunCmd.split(' ')
     this.log(`Running ${cmd} ${args}`)
-    const env = Object.assign({ 
-      RUST_BUILD_VERSION: version,
-      RUST_TARGET: target
-    }, process.env)
-    let runArgs = args.filter(s => s != "")
-    const runExitVal = this.run(cmd, runArgs, env)
+    const runExitVal = this.run(
+      cmd, 
+      args.filter(s => s != ""),
+      Object.assign({ 
+        RUST_BUILD_VERSION: version,
+        RUST_TARGET: target
+      }, process.env)
+    )
     this.log(`exitval = ${runExitVal}`)
   }
 }
