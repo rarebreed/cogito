@@ -24,12 +24,12 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
-    -p | --package)
+    -p |--package)
       PACKAGE="$2"
       shift # past argument
       shift
       ;;
-    -z | --zip)
+    -z |--zip)
       ZIP_FILE="$2"
       shift
       shift

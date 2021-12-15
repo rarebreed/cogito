@@ -1,7 +1,6 @@
 //import { dirname } from "path"
 const path = require("path")
 const { spawnSync } = require("child_process")
-const { copyFileSync, dirname, mkdtempSync } = require("fs")
 const os = require("os")
 
 const x86_64_linux = "x86_64-unknown-linux-gnu"
@@ -14,10 +13,6 @@ const defaultBuildContainerName = "fe2o3"
 const defaultZip = "lambda.zip"
 
 class RustPlugin {
-  // serverless: Serverless
-  // options: RustOptions
-  // docker: DockerOptions
-
   constructor(serverless, options) {
     this.serverless = serverless
     this.service = serverless.service
@@ -194,7 +189,7 @@ class RustPlugin {
     const usedDefaultZips = []
     this.getFunctions().forEach(fnName => {
       const fn = this.service.getFunction(fnName)
-      const runtime = fn.runtime || this.runtime
+      const runtime = fn.tags?.runtime
       if (runtime != "rust") {
         this.log(`Skipping non-rust function ${fnName}`)
         return
@@ -202,6 +197,8 @@ class RustPlugin {
       const pkg = fn.handler
       if (!pkg) {
         throw new Error("Must supply handler name")
+      } else {
+        this.log(`Building pkg ${pkg}`)
       }
       // If we have more than one function, and we have more than one defaultZip, it's an error
       //this.log(JSON.stringify(this.service.package, null, 2))

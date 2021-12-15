@@ -17,7 +17,7 @@ frameworkVersion: '2'
 
 provider:
   name: aws
-  runtime: rust
+  runtime: provided
   lambdaHashingVersion: 20201221
 
 plugins:
@@ -36,3 +36,4 @@ functions:
     handler: lambda-example
     tags:
       version: 1.55.0
+      runtime: rust
