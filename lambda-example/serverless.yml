@@ -24,9 +24,6 @@ plugins:
   - serverless-fe2o3
 
 custom:
-  rust:
-    version: 1.57.0
-    pkg: lambda-example
   docker:
     build: true
 
@@ -36,4 +33,7 @@ package:
 
 functions:
   hello:
-    handler: doesnt.matter
+    handler: lambda-example
+    tags:
+      version: 1.55.0
+      runtime: rust
