@@ -17,18 +17,15 @@ frameworkVersion: '2'
 
 provider:
   name: aws
-  runtime: provided
+  runtime: rust
   lambdaHashingVersion: 20201221
 
 plugins:
   - serverless-fe2o3
 
 custom:
-  rust:
-    version: 1.55.0
-    pkg: lambda-example
   docker:
-    build: false
+    build: true
 
 package:
   artifact: lambda.zip
@@ -36,4 +33,6 @@ package:
 
 functions:
   hello:
-    handler: doesnt.matter
+    handler: lambda-example
+    tags:
+      version: 1.55.0
