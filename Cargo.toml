@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "cmdr",
     "crossbow",
     "ignite",
     "alonzo",
