@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.14", features = [ "macros", "process", "fs", "io-util", "io-std", "rt-multi-thread" ] }
+structopt = "0.3"

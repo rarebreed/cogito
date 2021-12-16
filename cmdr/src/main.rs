@@ -4,6 +4,11 @@ use tokio::{
     process::Command,
     io::{BufReader, AsyncBufReadExt}
 };
+use structopt::StructOpt;
+
+struct CmdrOpt {
+
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
