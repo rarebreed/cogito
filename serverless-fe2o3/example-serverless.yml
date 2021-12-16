@@ -1,11 +1,24 @@
 custom:
+  # Contains "global" rust config values
   rust:
-    package: my-package  # name of your package
-    target: ""           # Optional, defaults to x86_64-unknown-linux-gnu
-    toolchain: stable    # Optional, defaults to stable     
-    version: 1.57.0      # Optional, defaults to latest
-    src_dir: /path/to/project # Optional, defaults to current directory
+    package: my-package                # name of your package
+    target: x86_64-unknown-linux-gnu   # Optional, defaults to x86_64-unknown-linux-gnu
+    toolchain: stable                  # Optional, defaults to stable     
+    version: 1.57.0                    # Required if not set under functions
+    src_dir: /path/to/project          # Optional, defaults to current directory
   docker:
-    build: true          # Optional. build the docker image defaults to true
-    tag: ""              # Required if build is true. docker tag
+    build: true                        # Optional. build the docker image defaults to true
+    context: /path/to/build/context    # The build context path.
+    tag: ""                            # Optional  docker tag.  defaults to fe2o3
+    extras: []                         # optional. other packages to install
     
+functions:
+  fn-name:
+    handler: package-name               # Required the cargo package
+    tags:
+      runtime: rust                     # required
+      version: 1.55.0                   # Optional: rustc version to use
+      target: x86_64-unknown-linux-gnu  # Optional: target triple
+      toolchain: beta                   # optional:
+  fn2:
+    handler: other-package

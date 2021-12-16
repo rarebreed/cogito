@@ -16,12 +16,11 @@ RUN mkdir /code; \
     wget "$url"; \
     chmod +x rustup-init; \
     ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host ${RUST_TARGET}; \
-    chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
-    cd /tmp; \
-    git clone https://github.com/rarebreed/cogito.git; \
-    cp /tmp/cogito/serverless-fe2o3/docker/builder/builder-fe2o3.sh /usr/local/bin;
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME;
 
 WORKDIR /code
+
+COPY ./docker/builder/builder-fe2o3.sh /usr/local/bin
 
 # execute the builder script instead
 ENTRYPOINT [ "" ]

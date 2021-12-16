@@ -49,7 +49,7 @@ if [ ! -z "$RUST_BUILD_VERSION" ]; then
   rustup show
 fi
 
-if [ ! -z "$RUST_TOOLCHAIN" ]; then
+if [ "$RUST_TOOLCHAIN" != "stable" ]; then
   rustup toolchain install $RUST_TOOLCHAIN
   rustup default $RUST_TOOLCHAIN
   rustup show

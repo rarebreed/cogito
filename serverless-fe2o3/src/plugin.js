@@ -93,7 +93,8 @@ class RustPlugin {
     toolchain = toolchain || this.options.toolchain
     version = version || this.options.version
     zip = zip || defaultZip
-    return `builder-fe2o3.sh -p ${pkg} -t ${target} -v ${version} --toolchain ${toolchain} -z ${zip}`
+    const toolchainArg = toolchain == "stable" ? "" : `--toolchain ${toolchain}`
+    return `builder-fe2o3.sh -p ${pkg} -t ${target} -v ${version} ${toolchainArg} -z ${zip}`
   }
 
   /**
@@ -134,7 +135,7 @@ class RustPlugin {
     toolchain = toolchain || this.options.toolchain
     zip = zip || defaultZip
     const { src_dir } = this.options
-    const { extras, tag, build } = this.docker
+    const { extras, tag, build, context } = this.docker
 
     if (build) {
       // determine the build args for the Dockerfile
@@ -143,7 +144,7 @@ class RustPlugin {
       const buildArgs = `${rustBuildArg} ${extraBuildArgs}`
 
       const dockerPath = this.dockerFile("builder")
-      const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${src_dir}`
+      const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${context || src_dir}`
       const [ cmd, ...args ] = dockerBuildCmd.split(" ")
       this.log(`Executing: ${cmd} ${args.filter(s => s != "")}`)
       const exitVal = this.run(cmd, args.filter(s => s != ""))

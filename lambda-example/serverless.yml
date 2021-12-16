@@ -25,7 +25,8 @@ plugins:
 
 custom:
   docker:
-    build: true
+    build: false
+    context: /tmp/serverless-fe2o3
 
 package:
   artifact: lambda.zip
@@ -35,5 +36,7 @@ functions:
   hello:
     handler: lambda-example
     tags:
-      version: 1.55.0
+      version: 1.57.0
       runtime: rust
+    package:
+      artifact: lambda-example.zip
