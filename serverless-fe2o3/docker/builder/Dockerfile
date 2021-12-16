@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/provided:al2 as builder
+FROM public.ecr.aws/lambda/provided:al2
 
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \

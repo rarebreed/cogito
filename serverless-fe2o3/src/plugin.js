@@ -10,6 +10,7 @@ const aarch64_linux = "aarch64-unknown-linux-gnu"
 const defaultRustcVersion = "1.57.0"
 const defaultRustToolchain = "stable"
 const defaultBuildContainerName = "fe2o3"
+const defaultBuildImage = "rarebreed/fe2o3"
 const defaultZip = "lambda.zip"
 
 class RustPlugin {
@@ -34,11 +35,19 @@ class RustPlugin {
 
     // Get values from custom.docker
     let docker = Object.assign({
-      build: true, tag: defaultBuildContainerName, extras: []
+      build: false, 
+      tag: defaultBuildImage, 
+      extras: []
     }, this.service.custom.docker || {})
     this.docker = docker
 
     this.log = this.serverless.cli.log
+
+    // To avoid docker pulling for each function declarationm do it once here
+    if (!docker.build) {
+      this.log("Pulling down rarebreed/fe2o3 image...")
+      this.run("docker", ["pull", "rarebreed/fe2o3"])
+    }
 
     // hooks to call into the plugin's functionality
     this.hooks = {
@@ -104,7 +113,7 @@ class RustPlugin {
    * @returns 
    */
   dockerFile = (dockerType) => {
-    return `${path.dirname(__dirname)}/docker/${dockerType}/Dockerfile`
+    return this.docker.file || `${path.dirname(__dirname)}/docker/${dockerType}/Dockerfile`
   }
 
   /**
@@ -118,6 +127,21 @@ class RustPlugin {
     }
     this.run("docker", ["stop", name])
     this.run("docker", ["rm", name])
+  }
+
+  buildDocker = (target) => {
+    const { src_dir } = this.options
+    const { extras, tag, context } = this.docker
+
+    const rustBuildArg = `--build-arg RUST_TARGET=${target}`
+    const extraBuildArgs = extras.length != 0 ? `--build-arg EXTRAS="${extras.join(" ")}"` : ""
+    const buildArgs = `${rustBuildArg} ${extraBuildArgs}`
+
+    const dockerPath = this.dockerFile("builder")
+    const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${context || src_dir}`
+    const [ cmd, ...args ] = dockerBuildCmd.split(" ")
+    this.log(`Executing: ${cmd} ${args.filter(s => s != "")}`)
+    return this.run(cmd, args.filter(s => s != ""))
   }
 
   /**
@@ -135,21 +159,11 @@ class RustPlugin {
     toolchain = toolchain || this.options.toolchain
     zip = zip || defaultZip
     const { src_dir } = this.options
-    const { extras, tag, build, context } = this.docker
+    const { tag, build } = this.docker
 
     if (build) {
-      // determine the build args for the Dockerfile
-      const rustBuildArg = `--build-arg RUST_TARGET=${target}`
-      const extraBuildArgs = extras.length != 0 ? `--build-arg EXTRAS="${extras.join(" ")}"` : ""
-      const buildArgs = `${rustBuildArg} ${extraBuildArgs}`
-
-      const dockerPath = this.dockerFile("builder")
-      const dockerBuildCmd = `docker build -f ${dockerPath} ${buildArgs} -t ${tag} ${context || src_dir}`
-      const [ cmd, ...args ] = dockerBuildCmd.split(" ")
-      this.log(`Executing: ${cmd} ${args.filter(s => s != "")}`)
-      const exitVal = this.run(cmd, args.filter(s => s != ""))
-    } else {
-      // TODO: Make sure we have a build image. and if not pull it down
+      const exitVal = this.buildDocker(target)
+      this.log(`Build completed with exit value ${exitVal}`)
     }
 
     // Need to remove container before running
@@ -157,15 +171,17 @@ class RustPlugin {
 
     // mount the rust source code into the container's /code
     const volume = `-v ${src_dir}:/code`
+
     // get the user and group so we build as it instead of container root
     const { uid, gid } = os.userInfo()
+
     // build up the actual docker command
     const scriptArg = this.buildScript(pkg, target, toolchain, version, zip)
     const dockerRunCmd = `docker run --name fe2o3 --user ${uid}:${gid} ${volume} ${tag} ${scriptArg}`
+
     // run the dockerRunCmd
     const [ cmd, ...args ] = dockerRunCmd.split(' ')
     this.log(`Running ${cmd} ${args}`)
-    // invoke the child processs
     const runExitVal = this.run(
       cmd, 
       args.filter(s => s != ""),
@@ -214,7 +230,6 @@ class RustPlugin {
       // TODO: If docker.build is true, we should name each image and see if we can reuse based on target, 
       // toolchain and version
       this.buildLambda(pkg, target, toolchain, version, zip)
-
     })
   }
 }
