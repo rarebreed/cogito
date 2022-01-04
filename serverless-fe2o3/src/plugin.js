@@ -1,4 +1,3 @@
-//import { dirname } from "path"
 const path = require("path")
 const { spawnSync } = require("child_process")
 const os = require("os")
@@ -43,7 +42,7 @@ class RustPlugin {
 
     this.log = this.serverless.cli.log
 
-    // To avoid docker pulling for each function declarationm do it once here
+    // To avoid docker pulling for each function declaration, do it once here
     if (!docker.build) {
       this.log("Pulling down rarebreed/fe2o3 image...")
       this.run("docker", ["pull", "rarebreed/fe2o3"])
@@ -61,11 +60,11 @@ class RustPlugin {
       },
       "before:offline:start": () => {
         this.log("in before:offline:start event")
-        //this.buildLambda()
+        this.build()
       },
       "before:offline:start:init": () => {
         this.log("in before:offline:start:init")
-        //this.buildLambda()
+        this.build()
       },
     };
   }
@@ -172,7 +171,7 @@ class RustPlugin {
     // mount the rust source code into the container's /code
     const volume = `-v ${src_dir}:/code`
 
-    // get the user and group so we build as it instead of container root
+    // get the user and group so we build as it instead of root
     const { uid, gid } = os.userInfo()
 
     // build up the actual docker command
@@ -217,8 +216,8 @@ class RustPlugin {
       } else {
         this.log(`Building pkg ${pkg}`)
       }
+
       // If we have more than one function, and we have more than one defaultZip, it's an error
-      //this.log(JSON.stringify(this.service.package, null, 2))
       const zip = fn.package?.artifact || this.service.package?.artifact || defaultZip
       if (zip == defaultZip) usedDefaultZips.push(fnName)
       if (usedDefaultZips.length > 1) throw new Error(`${zip} already used for ${fnName}`)
@@ -227,8 +226,7 @@ class RustPlugin {
       const { toolchain, target, version } = fn.tags
 
       // build with the docker image
-      // TODO: If docker.build is true, we should name each image and see if we can reuse based on target, 
-      // toolchain and version
+      // TODO: If docker.build is true, name each image based on target, toolchain and version
       this.buildLambda(pkg, target, toolchain, version, zip)
     })
   }
