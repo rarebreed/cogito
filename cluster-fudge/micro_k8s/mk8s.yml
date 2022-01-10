@@ -1,0 +1,8 @@
+---
+# playbook for setting up micro k8s on baremetal
+- name: Playbook to set up micro k8s on baremetal raspberry pi 4's
+  hosts: cluster
+  become: true
+  become_method: sudo
+  roles:
+  - setup

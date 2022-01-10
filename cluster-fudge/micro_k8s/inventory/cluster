@@ -1,0 +1,9 @@
+[rpi4]
+rpi4-master ansible_host=192.168.1.190
+rpi4-worker1 ansible_host=192.168.1.134
+
+[rpi4-master]
+rpi4-master ansible_host=192.168.1.190
+
+[rpi4-workers]
+rpi4-worker1 ansible_host=192.168.1.134

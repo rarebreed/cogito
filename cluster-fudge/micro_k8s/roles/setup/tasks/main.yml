@@ -1,0 +1,39 @@
+# Tasks shared across roles in the same playbook (not for tasks shared across playbooks)
+- name: Enable cgroups
+  become: true
+  lineinfile:
+    dest: /boot/firmware/cmdline.txt
+    line: cgroup_enable=memory cgroup_memory=1"
+    insertbefore: dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=LABEL=writable rootfstype=ext4 elevator=deadline rootwait fixrtc quiet splash
+    state: present
+  tags:
+    - setup
+
+- name: Reboot raspberry pi
+  become: true
+  reboot:
+    reboot_timeout: 60
+  tags:
+    - setup
+
+- name: Installs micro k8s
+  snap:
+    name: microk8s
+    state: present
+    classic: yes
+  tags:
+    - setup
+
+- name: Setup master node
+  hosts: rpi4-master
+  become: true
+  shell: microk8s.add-node > master-node.txt
+  tags:
+    - setup
+    - master_node
+
+- name: Get master-node.txt
+  hosts: source-servers
+  fetch:
+    src: /home/ubuntu/master-node.txt
+    dest: /tmp

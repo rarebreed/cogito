@@ -19,7 +19,7 @@ class RustPlugin {
     this.service = serverless.service
     this.opts = options
     this.runtime = this.service.provider.runtime
-    this.containerName = "fe2o3"
+    this.containerName = defaultBuildContainerName
 
     // Get values from custom.rust
     let { rust: rustOpts } = this.service.custom ?? {}
@@ -61,11 +61,11 @@ class RustPlugin {
       },
       "before:offline:start": () => {
         this.log("in before:offline:start event")
-        //this.buildLambda()
+        this.build()
       },
       "before:offline:start:init": () => {
         this.log("in before:offline:start:init")
-        //this.buildLambda()
+        this.build()
       },
     };
   }
@@ -129,6 +129,12 @@ class RustPlugin {
     this.run("docker", ["rm", name])
   }
 
+  /**
+   * Builds the docker image that can create rust binaries
+   * 
+   * @param {string} target the rustc target type (eg x86_64-unknown-linux-gnu) 
+   * @returns {string} command to be used for docker build
+   */
   buildDocker = (target) => {
     const { src_dir } = this.options
     const { extras, tag, context } = this.docker
@@ -147,11 +153,11 @@ class RustPlugin {
   /**
    * Builds the rust code through docker
    * 
-   * @param {*} pkg 
-   * @param {*} target 
-   * @param {*} toolchain 
-   * @param {*} version 
-   * @param {*} zip 
+   * @param {*} pkg the name of the cargo package to build
+   * @param {*} target the rustc target
+   * @param {*} toolchain the rustc toolchain
+   * @param {*} version the rustc version
+   * @param {*} zip the path to the zip file output
    */
   buildLambda = (pkg, target, toolchain, version, zip) => {
     version = version || this.options.version
@@ -193,10 +199,20 @@ class RustPlugin {
     this.log(`exitval = ${runExitVal}`)
   }
 
+  /**
+   * Returns list of the functions from the serverless.yaml|json file
+   * 
+   * @returns 
+   */
   getFunctions = () => {
     return this.opts.functions ? this.opts.functions : this.service.getAllFunctions()
   }
 
+  /**
+   * The main function that kicks off a rust build
+   * 
+   * @returns 
+   */
   build = () => {
     if (this.service.provider.name != "aws") {
       this.log(`provider ${this.service.provider} is not supported`)
@@ -218,7 +234,6 @@ class RustPlugin {
         this.log(`Building pkg ${pkg}`)
       }
       // If we have more than one function, and we have more than one defaultZip, it's an error
-      //this.log(JSON.stringify(this.service.package, null, 2))
       const zip = fn.package?.artifact || this.service.package?.artifact || defaultZip
       if (zip == defaultZip) usedDefaultZips.push(fnName)
       if (usedDefaultZips.length > 1) throw new Error(`${zip} already used for ${fnName}`)
@@ -227,8 +242,7 @@ class RustPlugin {
       const { toolchain, target, version } = fn.tags
 
       // build with the docker image
-      // TODO: If docker.build is true, we should name each image and see if we can reuse based on target, 
-      // toolchain and version
+      // TODO: If docker.build is true, we should name each image based on target, toolchain and version
       this.buildLambda(pkg, target, toolchain, version, zip)
     })
   }
