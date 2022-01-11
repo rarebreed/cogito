@@ -6,34 +6,74 @@
     line: cgroup_enable=memory cgroup_memory=1"
     insertbefore: dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=LABEL=writable rootfstype=ext4 elevator=deadline rootwait fixrtc quiet splash
     state: present
+  register: enable_cgroups
   tags:
     - setup
 
 - name: Reboot raspberry pi
   become: true
+  when: enable_cgroups.changed
   reboot:
-    reboot_timeout: 60
+    reboot_timeout: 180
   tags:
     - setup
 
 - name: Installs micro k8s
+  become: true
   snap:
     name: microk8s
     state: present
     classic: yes
   tags:
     - setup
+    - install
 
 - name: Setup master node
-  hosts: rpi4-master
   become: true
   shell: microk8s.add-node > master-node.txt
+  when: inventory_hostname in groups['master']
   tags:
     - setup
     - master_node
 
-- name: Get master-node.txt
-  hosts: source-servers
+- name: Copy master-node.txt to local
+  become: true
+  when: inventory_hostname in groups["master"]
   fetch:
     src: /home/ubuntu/master-node.txt
-    dest: /tmp
+    dest: buffer/
+    flat: true
+  tags:
+    - setup
+    - master_node
+
+- name: Push master-node.txt to workers
+  become: true
+  when: inventory_hostname in groups["workers"]
+  copy:
+    src: buffer/master-node.txt
+    dest: /tmp/master-node.txt
+  tags:
+    - setup
+    - master_node
+
+- name: Get master node token
+  become: true
+  script: master_token.py
+  when: inventory_hostname in groups["workers"]
+  register: master_node_token
+  args:
+    executable: python3
+  tags:
+    - setup
+    - master_node
+
+- name: Join workers to master
+  become: true
+  when: inventory_hostname in groups["workers"]
+  shell: "{{ master_node_token.stdout }}"
+  tags:
+    - setup
+    - master_node
+
+# TODO: for the workers, use the token value as a variable to join to master

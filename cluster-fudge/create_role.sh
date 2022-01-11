@@ -36,12 +36,12 @@ if [ -z $role ]; then
   exit -1
 fi
 
-if [ ! -f $playbook ]; then
+if [ ! -d $playbook ]; then
   mkdir $playbook
 fi
 
-if [ -f $role ]; then
-  echo "$role already exists"
+if [ -d "$playbook/roles/$role" ]; then
+  echo "$playbook/$role already exists"
   exit -1
 else 
   mkdir -p "$playbook/roles/$role"
@@ -52,7 +52,7 @@ if [ ! -f "$playbook/$playbook.yml" ]; then
   touch "$playbook/$playbook.yml"
 fi
 
-if [ ! -f "$playbook/inventory" ]; then
+if [ ! -d "$playbook/inventory" ]; then
   mkdir "$playbook/inventory"
   touch "$playbook/inventory/cluster"
 fi
