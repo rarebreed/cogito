@@ -1,0 +1,7 @@
+# Tasks shared across roles in the same playbook (not for tasks shared across playbooks)
+- name: Update apt
+  become: true
+  apt:
+    update_cache: yes
+    upgrade: yes
+    autoremove: yes
