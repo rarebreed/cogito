@@ -1,4 +1,3 @@
-//import { dirname } from "path"
 const path = require("path")
 const { spawnSync } = require("child_process")
 const os = require("os")
@@ -43,7 +42,7 @@ class RustPlugin {
 
     this.log = this.serverless.cli.log
 
-    // To avoid docker pulling for each function declarationm do it once here
+    // To avoid docker pulling for each function declaration, do it once here
     if (!docker.build) {
       this.log("Pulling down rarebreed/fe2o3 image...")
       this.run("docker", ["pull", "rarebreed/fe2o3"])
@@ -178,7 +177,7 @@ class RustPlugin {
     // mount the rust source code into the container's /code
     const volume = `-v ${src_dir}:/code`
 
-    // get the user and group so we build as it instead of container root
+    // get the user and group so we build as it instead of root
     const { uid, gid } = os.userInfo()
 
     // build up the actual docker command
@@ -233,6 +232,7 @@ class RustPlugin {
       } else {
         this.log(`Building pkg ${pkg}`)
       }
+
       // If we have more than one function, and we have more than one defaultZip, it's an error
       const zip = fn.package?.artifact || this.service.package?.artifact || defaultZip
       if (zip == defaultZip) usedDefaultZips.push(fnName)
