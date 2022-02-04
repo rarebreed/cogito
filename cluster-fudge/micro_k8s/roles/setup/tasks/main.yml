@@ -28,6 +28,38 @@
     - setup
     - install
 
+- name: Add ubuntu to microk8s group
+  become: true
+  user:
+    name: ubuntu
+    groups:
+      - microk8s
+  tags:
+    - setup
+    - install
+
+- name: Set ~/.kube owner to ubuntu
+  become: true
+  file:
+    path: ~/.kube
+    owner: ubuntu
+    recurse: yes
+    force: yes
+  tags:
+    - setup
+    - install
+
+# TODO: Have a task to reboot if ubuntu is not in the microk8s group
+- name: Reboot raspberry pi for microk8s group
+  become: true
+  reboot:
+    reboot_timeout: 180
+  tags:
+    - setup
+    - install
+
+# FIXME: The next four steps need to be run for each worker. 
+
 - name: Setup master node
   become: true
   shell: microk8s.add-node > master-node.txt
@@ -67,6 +99,7 @@
   tags:
     - setup
     - master_node
+    - master_token
 
 - name: Join workers to master
   become: true
@@ -74,6 +107,15 @@
   shell: "{{ master_node_token.stdout }}"
   tags:
     - setup
+    - join_master
     - master_node
 
 # TODO: for the workers, use the token value as a variable to join to master
+
+- name: Add microk8s add-ons
+  shell: micrkok8s enable {{ item }}
+  with_items:
+    - helm3
+    - dns
+    - linkerd
+    

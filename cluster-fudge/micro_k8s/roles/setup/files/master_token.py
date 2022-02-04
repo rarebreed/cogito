@@ -4,6 +4,7 @@ import sys
 
 with open("/tmp/master-node.txt", "r") as node:
     token = node.readlines()[1]
+    token = token.strip()
 
 if token is not None:
     print(token)
