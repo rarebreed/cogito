@@ -1,9 +1,10 @@
 [workspace]
 
 members = [
+    "alonzo",
+    "cantor",
     "crossbow",
     "ignite",
-    "alonzo",
     "reveles",
     "lambda-example"
 ]
