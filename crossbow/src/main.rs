@@ -1,6 +1,6 @@
-use clap::App;
+use clap::Command;
 
 #[tokio::main]
 async fn main() {
-    App::new("docker demo").about("Build an executable for ");
+    Command::new("docker demo").about("Build an executable for ");
 }
