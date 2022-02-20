@@ -108,6 +108,10 @@ mod tests {
         let arg = vec![1, 2, 3, 4];
         let paired = pairs(&arg);
         println!("{:?}", paired);
+
+        let slice = &[1, 2, 3, 4];
+        let paired2 = pairs(slice);
+        assert_eq!(paired, paired2, "not equal");
     }
 
     #[test]
