@@ -1,16 +1,44 @@
+//! Crate for functional style data structures, typeclasses and functions
+
+#![deny(missing_docs)]
+
+/// A "typeclass" for a Functor
+/// 
+/// TODO: When Generic Associated Types are in beta, use a GAT
 pub trait Functor {
+    /// Represents the type that fmap takes
     type T;
 
+    /// fmap is how a Functor type can transform data, or map from one range (output) to another
     fn fmap<B>(&self, fun: impl Fn(Self::T) -> B) -> B;
 }
 
+/// A more intuitive form or compose, where order is from left to right
+/// 
+/// Example:
+/// 
+/// ```rust
+/// # use alonzo::pipe;
+/// let double = |x| { x * 2};
+/// let plus10 = |x| { x + 10};
+/// let piped = pipe(double, plus10);
+/// let answer = piped(3);  // should equal 16
+/// assert!(answer == 16);
+/// ```
 pub fn pipe<A, B, C>(f1: impl Fn(A) -> B, f2: impl Fn(B) -> C) -> impl Fn(A) -> C {
     move |a: A| f2(f1(a))
 }
 
 /// Takes an Iterator, and returns a list of pairs, where the first item
 ///
-/// Example: pairs(vec![1, 2, 3]) returns [[1, 2], [2, 3], [3, 4]]
+/// Example: 
+/// 
+/// ```rust
+/// # use alonzo::pairs;
+/// let arg = vec![1, 2, 3];
+/// let paired = pairs(&arg); 
+/// println!("{:?}", paired); // returns [[1, 2], [2, 3], [3, 4]]
+/// ```
 ///
 /// In order to make this work for any kind of iterator, we need to use generics.  Since
 /// an Iterator Item is a refernce to the item and not the item itself, we also need to
@@ -35,12 +63,14 @@ where
     storage
 }
 
+/// An Iterator that can be used to represent a range
 pub struct Ranged {
     end: usize,
     state: usize,
 }
 
 impl Ranged {
+    /// Creates a new Ranged object
     pub fn new(start: usize, end: usize) -> Self {
         Ranged { end, state: start }
     }
@@ -60,6 +90,7 @@ impl Iterator for Ranged {
     }
 }
 
+/// Like rust's .. but in function form
 pub fn range(start: usize, end: usize) -> impl Iterator<Item = usize> {
     let ranged = Ranged::new(start, end);
     ranged
@@ -71,10 +102,13 @@ pub fn range(start: usize, end: usize) -> impl Iterator<Item = usize> {
 /// the collections is shorter than the other, it will stop zipping
 ///
 /// Example:
-/// ```
+/// 
+/// ```rust
+/// # use alonzo::zip;
 /// let coll1 = vec![1, 2, 3, 4];
 /// let coll2 = ["a", "b", "c"];
-/// let zipped = zip(&coll1, &coll2) // [(1, "a"), (2, "b"), (3, "c")]
+/// let zipped = zip(&coll1, &coll2); 
+/// println!("zipped is {:?}", zipped); // [(1, "a"), (2, "b"), (3, "c")]
 /// ```
 pub fn zip<'a, 'b, A, B, A1, B1>(coll1: A, coll2: B) -> Vec<(&'a A1, &'b B1)>
 where
