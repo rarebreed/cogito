@@ -1,7 +1,7 @@
 //! Module containing definitions of test meta data
-//! 
+//!
 
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Duration, Utc};
 
 pub struct S3Path(String);
 
@@ -9,7 +9,7 @@ pub enum RunStatus {
     Pass,    // Test failed
     Fail,    // Test did not pass assertion(s)
     Skipped, // Test was not run
-    Error    // test failed, but not due to assertion
+    Error,   // test failed, but not due to assertion
 }
 
 pub struct RunResult {
@@ -19,5 +19,5 @@ pub struct RunResult {
     pub end_time: DateTime<Utc>,
     pub duration: Duration,
     pub failure: Option<String>,
-    pub log: S3Path
+    pub log: S3Path,
 }

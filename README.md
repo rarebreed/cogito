@@ -13,7 +13,6 @@ also use some scala3 and python3.10.  As a cargo workspace project, it will cont
 - notebooks: set of notebooks on various topics
 - crossbow: port of ignite to use DataFusion+Ballista instead of Spark
 - alonzo: FP library in rust
-- sentinel: an actix-rs server listening to SQS and kafka
 - venturi: airflow service with dag examples
 - crucible: examines test results, logs, code, and metrics to help find patterns and anomalies
 

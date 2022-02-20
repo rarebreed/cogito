@@ -1,5 +1,5 @@
 From the node you wish to join to this cluster, run the following:
-microk8s join 192.168.1.190:25000/c04d05924cb04ec15324b850ecd5d46d/b603bf04e638
+microk8s join 192.168.1.134:25000/22e32931b6f47ff52ed4d8d8988be621/cbb73f822d2f
 
 If the node you are adding is not reachable through the default interface you can use one of the following:
- microk8s join 192.168.1.190:25000/c04d05924cb04ec15324b850ecd5d46d/b603bf04e638
+ microk8s join 192.168.1.134:25000/22e32931b6f47ff52ed4d8d8988be621/cbb73f822d2f

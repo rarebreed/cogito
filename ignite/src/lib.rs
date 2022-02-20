@@ -1,8 +1,9 @@
-use reqwest::{Client};
+use reqwest::Client;
 
 async fn post_request(json: String, token: &str) {
     let client = Client::new();
-    let response = client.post("https:/my.cool.service/v2/awesome/endpoint")
+    let response = client
+        .post("https:/my.cool.service/v2/awesome/endpoint")
         .body(json)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
@@ -11,7 +12,7 @@ async fn post_request(json: String, token: &str) {
         .await;
     match response {
         Ok(resp) => println!("{:#?}", resp),
-        Err(e) => panic!("Got error: {}", e)
+        Err(e) => panic!("Got error: {}", e),
     }
 }
 
@@ -31,7 +32,7 @@ pub fn basics(id: String) {
     let mut scores = vec![];
     let score = 64;
     scores.push(score);
-    println!("score is {}", score);  // this works, because i32 implements Copy trait
+    println!("score is {}", score); // this works, because i32 implements Copy trait
 }
 
 trait Monoid {
@@ -40,16 +41,18 @@ trait Monoid {
 }
 
 struct Foo {
-    inner: String
+    inner: String,
 }
 
 struct IntWrapper {
-    inner: u64
+    inner: u64,
 }
 
 impl Monoid for IntWrapper {
     fn append(&self, rhs: Self) -> Self {
-        IntWrapper { inner: self.inner + rhs.inner }
+        IntWrapper {
+            inner: self.inner + rhs.inner,
+        }
     }
 
     fn empty(self) -> Self {
@@ -59,7 +62,9 @@ impl Monoid for IntWrapper {
 
 impl Monoid for Foo {
     fn append(&self, rhs: Self) -> Self {
-        Foo { inner: format!("{}{}", self.inner, rhs.inner) }
+        Foo {
+            inner: format!("{}{}", self.inner, rhs.inner),
+        }
     }
 
     fn empty(self) -> Self {
