@@ -2,5 +2,5 @@
 .metals/
 .idea/
 .bloop/
-target/
+**/target/
 project/

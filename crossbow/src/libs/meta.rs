@@ -1,12 +1,10 @@
 //! Module containing definitions of test meta data
-//!
 
 use chrono::{DateTime, Duration, Utc};
-
-/// new type for an S3 URI
-pub struct S3Path(String);
+use serde::{Serialize, Deserialize};
 
 /// Different states for a test run
+#[derive(Serialize, Deserialize, Debug)]
 pub enum RunStatus {
     /// Test passed all assertions
     Pass,
@@ -18,7 +16,24 @@ pub enum RunStatus {
     Error,
 }
 
+/// Path for where logs are stored
+#[derive(Serialize, Deserialize, Debug)]
+pub enum LogPath {
+    /// For logs stored locally on a system
+    Local(String),
+    /// For logs stored in a cloud provider (eg, s3)
+    Cloud {
+        /// Provider type (eg, s3, gcp)
+        /// FIXME: make this an enum
+        provider: String,
+        /// The full path to the log
+        uri: String
+    }
+}
+
+
 /// Represents relevant data for a test run
+#[derive(Serialize, Deserialize, Debug)]
 pub struct RunResult {
     /// The status of the test
     pub status: RunStatus,
@@ -28,10 +43,15 @@ pub struct RunResult {
     pub start_time: DateTime<Utc>,
     /// When the test completed
     pub end_time: DateTime<Utc>,
-    /// Time test took to run
-    pub duration: Duration,
     /// Message of test failure
     pub failure: Option<String>,
-    /// Where test result is stored
-    pub log: S3Path,
+    /// Path for log of test
+    pub log: LogPath,
+}
+
+impl RunResult {
+    /// Returns the duration the test ran
+    pub fn duration(&self) -> Duration {
+        self.end_time.signed_duration_since(self.start_time)
+    }
 }
