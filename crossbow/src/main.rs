@@ -2,5 +2,5 @@ use clap::Command;
 
 #[tokio::main]
 async fn main() {
-    Command::new("docker demo").about("Build an executable for ");
+    let _cmd = Command::new("docker demo").about("Build an executable for ");
 }

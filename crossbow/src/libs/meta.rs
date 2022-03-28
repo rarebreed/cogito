@@ -1,7 +1,46 @@
-//! Module containing definitions of test meta data
+//! Definitions of test results and metadata
 
-use chrono::{DateTime, Duration, Utc};
+use std::collections::HashMap;
+
+use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
+
+/// Test Case data
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TestCase {
+    /// The full unambiguous name of the test method
+    pub qualified_name: String,
+    /// Any parent group this test ran under
+    pub parent: Option<String>,
+    /// Metadata for the test
+    pub metadata: Option<TestMetaData>,
+    /// What ran the test
+    pub executor: Executor
+}
+
+/// Information about the entity that executes a test
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Executor {
+    /// A name for the executor, like a jenkins job name
+    pub name: String,
+    /// Eg Jenkins, Travis, Airflow, local, etc
+    pub executor_type: String,
+    /// An identifier like a jenkins build number
+    pub id: String
+}
+
+/// Data about the TestCase, such as dependencies
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TestMetaData {
+    /// system dependencies like microservices, etl pipelines
+    pub system_deps: HashMap<String, String>,
+    /// local dependencies such as utilities or files
+    pub local_deps: HashMap<String, String>,
+    /// Things which must exist before test runs, such as state value
+    pub preconditions: HashMap<String, String>,
+    /// Things which must be true after test runs
+    pub postconditions: HashMap<String, String>
+}
 
 /// Different states for a test run
 #[derive(Serialize, Deserialize, Debug)]
@@ -43,15 +82,17 @@ pub struct RunResult {
     pub start_time: DateTime<Utc>,
     /// When the test completed
     pub end_time: DateTime<Utc>,
-    /// Message of test failure
-    pub failure: Option<String>,
     /// Path for log of test
     pub log: LogPath,
+    /// Error details
+    pub error_details: Option<String>,
+    /// stack trace
+    pub stack_trace: Option<Vec<String>>
 }
 
 impl RunResult {
     /// Returns the duration the test ran
-    pub fn duration(&self) -> Duration {
+    pub fn duration(&self) -> chrono::Duration {
         self.end_time.signed_duration_since(self.start_time)
     }
 }
