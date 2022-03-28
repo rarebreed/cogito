@@ -1,9 +1,9 @@
 use reqwest::Client;
 
-async fn post_request(json: String, token: &str) {
+pub async fn post_request(url: &str, json: String, token: &str) {
     let client = Client::new();
     let response = client
-        .post("https:/my.cool.service/v2/awesome/endpoint")
+        .post(url)
         .body(json)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")

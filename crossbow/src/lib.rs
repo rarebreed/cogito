@@ -2,4 +2,5 @@
 
 #![deny(missing_docs)]
 
+/// namespace for the crossbow libs
 pub mod libs;
