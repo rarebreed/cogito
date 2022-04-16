@@ -1,5 +1,8 @@
 From the node you wish to join to this cluster, run the following:
-microk8s join 192.168.1.134:25000/22e32931b6f47ff52ed4d8d8988be621/cbb73f822d2f
+microk8s join 192.168.1.134:25000/4eb141e33e7caab22f5bb3dba17db563/dd0847503ebd
+
+Use the '--worker' flag to join a node as a worker not running the control plane, eg:
+microk8s join 192.168.1.134:25000/4eb141e33e7caab22f5bb3dba17db563/dd0847503ebd --worker
 
 If the node you are adding is not reachable through the default interface you can use one of the following:
- microk8s join 192.168.1.134:25000/22e32931b6f47ff52ed4d8d8988be621/cbb73f822d2f
+microk8s join 192.168.1.134:25000/4eb141e33e7caab22f5bb3dba17db563/dd0847503ebd

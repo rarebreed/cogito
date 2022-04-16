@@ -52,6 +52,9 @@ class RustPlugin {
     this.hooks = {
       "before:package:createDeploymentArtifacts": () => {
         this.log("In before:package:createDeploymentArtifacts")
+        // FIXME:  We need a way to detect if any files have changed (eg git status)
+        // IF bootstrap does not exist or any files changed call build()
+        
         this.build()
       },
       "before:deploy:function:packageFunction": () => {

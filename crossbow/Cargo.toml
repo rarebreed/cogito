@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 clap = "^3.0"
 tokio = { version = "^1", features = ["full"] }
-arrow2 = { version = "0.10.1"}
+arrow2 = { version = "0.10.0"}
 serde = { version = "^1.0", features = ["derive"] }
 time = "0.3"
 chrono = { git = "https://github.com/chronotope/chrono.git", features = ["serde"] }
