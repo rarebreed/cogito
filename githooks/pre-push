@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/zsh -e
 
 # githook to run before pushing 
 # - Check if we need to run cargo fmt
@@ -33,4 +33,4 @@ cargo test -- --nocapture
 
 echo "################################"
 echo "Running audit check..."
-cargo audit
+#cargo audit
