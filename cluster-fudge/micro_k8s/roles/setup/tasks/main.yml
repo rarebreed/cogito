@@ -1,4 +1,5 @@
 # Tasks shared across roles in the same playbook (not for tasks shared across playbooks)
+---
 - name: Enable cgroups
   become: true
   lineinfile:
@@ -45,6 +46,7 @@
     owner: ubuntu
     recurse: yes
     force: yes
+  register: kube
   tags:
     - setup
     - install
@@ -52,68 +54,26 @@
 # TODO: Have a task to reboot if ubuntu is not in the microk8s group
 - name: Reboot raspberry pi for microk8s group
   become: true
+  when: kube.changed
   reboot:
     reboot_timeout: 180
   tags:
     - setup
     - install
 
-# FIXME: The next four steps need to be run for each worker. 
+# This will loop through each worker one by one, calling the set of tasks in join.yml
+- name: Join nodes
+  include_tasks: join.yml worker={{ item }}
+  # FIXME: Find a way to loop through group["workers"]
+  loop:
+    - rpi4_worker1
+    - rpi4_worker2
+    - rpi4_worker3
 
-- name: Setup master node
-  become: true
-  shell: microk8s.add-node > master-node.txt
-  when: inventory_hostname in groups['master']
-  tags:
-    - setup
-    - master_node
-
-- name: Copy master-node.txt to local
-  become: true
-  when: inventory_hostname in groups["master"]
-  fetch:
-    src: /home/ubuntu/master-node.txt
-    dest: buffer/
-    flat: true
-  tags:
-    - setup
-    - master_node
-
-- name: Push master-node.txt to workers
-  become: true
-  when: inventory_hostname in groups["workers"]
-  copy:
-    src: buffer/master-node.txt
-    dest: /tmp/master-node.txt
-  tags:
-    - setup
-    - master_node
-
-- name: Get master node token
-  become: true
-  script: master_token.py
-  when: inventory_hostname in groups["workers"]
-  register: master_node_token
-  args:
-    executable: python3
-  tags:
-    - setup
-    - master_node
-    - master_token
-
-- name: Join workers to master
-  become: true
-  when: inventory_hostname in groups["workers"]
-  shell: "{{ master_node_token.stdout }}"
-  tags:
-    - setup
-    - join_master
-    - master_node
-
-# TODO: for the workers, use the token value as a variable to join to master
+# TODO: for the workers, use the token value as a variable to join to main
 
 - name: Add microk8s add-ons
-  shell: micrkok8s enable {{ item }}
+  shell: microk8s enable {{ item }}
   with_items:
     - helm3
     - dns

@@ -2,4 +2,5 @@
 
 #![deny(missing_docs)]
 
+/// Collection of libraries used by crossbow
 pub mod libs;

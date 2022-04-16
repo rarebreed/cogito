@@ -3,6 +3,7 @@
 This is a project to help learn data science and engineering as well as the rust ecosystem.  It will
 also use some scala3 and python3.10.  As a cargo workspace project, it will contain several subprojects:
 
+- cantor: macro library to build data subsets
 - cluster-fudge: Project to help setup a k8s raspberry pi4 cluster
     - venturi: playbooks to set up airflow on the cluster
     - zap: playbooks to set up Spark

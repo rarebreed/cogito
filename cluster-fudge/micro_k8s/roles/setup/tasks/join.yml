@@ -1,0 +1,53 @@
+# Tasks shared across roles in the same playbook (not for tasks shared across playbooks)
+
+# This needs to be performed once per node work.  The trick is that we have to call add-node, and then the worker
+# has to call join before the next
+- name: Setup main node
+  become: true
+  shell: microk8s.add-node > main-node.txt
+  when: inventory_hostname in groups['main']
+  tags:
+    - setup
+    - main_node
+
+- name: Copy main-node.txt to local
+  become: true
+  when: inventory_hostname in groups["main"]
+  fetch:
+    src: /home/ubuntu/main-node.txt
+    dest: buffer/
+    flat: true
+  tags:
+    - setup
+    - main_node
+
+- name: Push main-node.txt to worker
+  become: true
+  when: inventory_hostname == worker
+  copy:
+    src: buffer/main-node.txt
+    dest: /tmp/main-node.txt
+  tags:
+    - setup
+    - main_node
+
+- name: Get main node token
+  become: true
+  script: main_token.py
+  when: inventory_hostname == worker
+  register: main_node_token
+  args:
+    executable: python3
+  tags:
+    - setup
+    - main_node
+    - main_token
+
+- name: Join workers to main
+  become: true
+  when: inventory_hostname == worker
+  shell: "{{ main_node_token.stdout }}"
+  tags:
+    - setup
+    - join_main
+    - main_node
