@@ -1,16 +1,15 @@
 //! Data types representing tests, alarms and observations
-//!
 
 use crate::libs::meta::RunResult;
 
 /// A TestSuite is a collection of TestRuns
 pub struct TestSuiteResult {}
 
-/// Execution of a test
+/// Data for an execution of a collection of tests
 pub struct TestRun {
-    /// The RunResult
+    /// The result overall of all the tests that ran
     pub run: RunResult,
 }
 
-/// A grouping of tests
+/// A collection of tests
 pub struct TestGroup {}

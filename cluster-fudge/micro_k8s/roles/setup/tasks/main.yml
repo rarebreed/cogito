@@ -28,6 +28,7 @@
   tags:
     - setup
     - install
+    - microk8s
 
 - name: Add ubuntu to microk8s group
   become: true
@@ -38,6 +39,7 @@
   tags:
     - setup
     - install
+    - microk8s
 
 - name: Set ~/.kube owner to ubuntu
   become: true
