@@ -6,16 +6,15 @@
 # - cargo test
 # - cargo audit 
 
-echo "################################"
 echo "Checking if there are updated crates..."
 #cargo update --dry-run
-
 echo "################################"
+
 echo "Running clippy..."
 cargo clippy
+echo "################################"
 
 # get files which have changed and are rust files
-echo "################################"
 echo "Checking if cargo fmt is required..."
 git diff HEAD~1 --name-only | grep .rs
 changed=`git diff HEAD~1 --name-only | grep .rs`
@@ -26,15 +25,16 @@ if [ ! -z $"changed "]; then
     rustfmt -l --check $i 
   done
 fi
-
 echo "################################"
+
 echo "Building debug..."
 cargo build
-
 echo "################################"
+
 echo "Running tests..."
 cargo test -- --nocapture
-
 echo "################################"
+
 echo "Running audit check..."
+echo "################################"
 #cargo audit
