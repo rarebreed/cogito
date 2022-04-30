@@ -1,13 +1,23 @@
-use std::{path::PathBuf, fs::{self, DirEntry}, error::Error, rc::Rc, fmt::Display};
+use std::{
+    error::Error,
+    fmt::Display,
+    fs::{self, DirEntry},
+    path::PathBuf,
+    rc::Rc,
+};
 
 type DynError = Box<dyn Error + 'static + Send + Sync>;
 
-/// Lists the files 
-/// 
+/// Lists the files
+///
 /// Notice that we had to use a hdlr wrapped in an Rc.  Since this is a recursive function, the hdlr
-/// gets moved in the for loop when we need to make the recursive call.  But, since hdlr is not a 
+/// gets moved in the for loop when we need to make the recursive call.  But, since hdlr is not a
 /// reference, it is moved.  I could not figure out a way to take a reference to an impl
-fn list_dir_helper(path: PathBuf, depth: usize, hdlr: Rc<impl Fn(&DirEntry, usize) -> ()>) -> Result<(), DynError> {
+fn list_dir_helper(
+    path: PathBuf,
+    depth: usize,
+    hdlr: Rc<impl Fn(&DirEntry, usize) -> ()>,
+) -> Result<(), DynError> {
     let entries = fs::read_dir(path)?;
     for entry in entries {
         let entry = entry?;
@@ -24,7 +34,9 @@ fn list_dir_helper(path: PathBuf, depth: usize, hdlr: Rc<impl Fn(&DirEntry, usiz
 
 /// Realized I was dense and could do it like this.  Should be faster too
 pub fn list_dir_2<T>(path: PathBuf, depth: usize, hdlr: &T) -> Result<(), DynError>
-    where T: Fn(&DirEntry, usize) -> Result<(), DynError> {
+where
+    T: Fn(&DirEntry, usize) -> Result<(), DynError>,
+{
     let entries = fs::read_dir(path)?;
     for entry in entries {
         let entry = entry?;
@@ -54,9 +66,7 @@ pub fn space_string(base: &str, depth: usize) -> String {
 }
 
 #[derive(Debug)]
-pub struct ListError {
-
-}
+pub struct ListError {}
 
 impl Display for ListError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -64,11 +74,7 @@ impl Display for ListError {
     }
 }
 
-impl Error for ListError {
-
-}
-
-
+impl Error for ListError {}
 
 /// Lists all the files in a directory, and renames a substring in the filename
 fn rename(path: PathBuf, from: &str, to: &str) -> Result<(), DynError> {
@@ -76,18 +82,18 @@ fn rename(path: PathBuf, from: &str, to: &str) -> Result<(), DynError> {
         let fname = entry.file_name();
         let fname = match fname.into_string() {
             Ok(f) => f,
-            Err(_) => return Err(Box::new(ListError{})),
+            Err(_) => return Err(Box::new(ListError {})),
         };
         let new_name = fname.replace(from, to);
-        let new_path = entry.path()
+        let new_path = entry
+            .path()
             .parent()
-            .map(|p| { 
+            .map(|p| {
                 let mut buf = p.to_path_buf();
                 buf.push(&new_name);
                 buf
             })
             .expect("No parent");
-        
 
         println!("Going to rename {:?} to {:?}", entry.path(), new_path);
         //fs::rename(entry.path(), new_path)?;
@@ -102,10 +108,10 @@ mod tests {
 
     #[test]
     fn test_rename() {
-        let res = rename(PathBuf::from(
-            "/mnt/chromeos/MyFiles/RPG/Morrow_Project"),
-         "TheMorrowProject-", 
-         ""
+        let res = rename(
+            PathBuf::from("/mnt/chromeos/MyFiles/RPG/Morrow_Project"),
+            "TheMorrowProject-",
+            "",
         );
     }
 

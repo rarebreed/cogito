@@ -1,5 +1,4 @@
-use clap::{Subcommand, Parser, Args};
-
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Debug, Parser)]
 #[clap(name = "utils")]
@@ -11,16 +10,16 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
-    Rename(Rename)
+    Rename(Rename),
 }
 
 #[derive(Args, Debug)]
 struct Rename {
-    #[clap(help="Substring to rename")]
+    #[clap(help = "Substring to rename")]
     rename: String,
-    #[clap(help="rename substring to this")]
+    #[clap(help = "rename substring to this")]
     to: String,
-    #[clap(long, parse(from_os_str), help="path of files to be renamed")]
+    #[clap(long, parse(from_os_str), help = "path of files to be renamed")]
     from_path: Option<std::path::PathBuf>,
 }
 

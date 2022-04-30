@@ -13,20 +13,23 @@ fn test() {
 pub struct Equipment {
     pub name: String,
     pub price: f64,
-    pub weight: f64
+    pub weight: f64,
 }
 
 pub struct Character {
     name: String,
-    equipment: Vec<Equipment>
+    equipment: Vec<Equipment>,
 }
 
-// These look like methods, but there is a crucial difference.  
+// These look like methods, but there is a crucial difference.
 // - They do not all implicitly have &self as an argument
 // - The implementation of the methods can happen separately from the struct declaration (even in another file!)
 impl Character {
     pub fn new(name: String) -> Self {
-        Character { name , equipment: vec![]}
+        Character {
+            name,
+            equipment: vec![],
+        }
     }
 
     pub fn add_equipment<'a>(&'a mut self, item: Equipment) -> &'a Vec<Equipment> {
@@ -43,7 +46,7 @@ impl Character {
             if item.name == name {
                 at = idx;
                 found = true;
-                break
+                break;
             }
         }
         if found {
@@ -57,7 +60,7 @@ fn test2() {
     let equip = char.add_equipment(Equipment {
         name: "sword".into(),
         price: 1000.00,
-        weight: 10.0
+        weight: 10.0,
     });
     println!("{equip:#?}");
 }
