@@ -93,8 +93,7 @@ impl Iterator for Ranged {
 
 /// Like rust's .. but in function form
 pub fn range(start: usize, end: usize) -> impl Iterator<Item = usize> {
-    let ranged = Ranged::new(start, end);
-    ranged
+    Ranged::new(start, end)
 }
 
 /// Takes a collection of A1's and B1's, returning a vector of 2 element tuple.

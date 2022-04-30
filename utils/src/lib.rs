@@ -16,7 +16,7 @@ type DynError = Box<dyn Error + 'static + Send + Sync>;
 fn list_dir_helper(
     path: PathBuf,
     depth: usize,
-    hdlr: Rc<impl Fn(&DirEntry, usize) -> ()>,
+    hdlr: Rc<impl Fn(&DirEntry, usize)>,
 ) -> Result<(), DynError> {
     let entries = fs::read_dir(path)?;
     for entry in entries {
@@ -50,7 +50,7 @@ where
     Ok(())
 }
 
-pub fn list_dir(path: PathBuf, hdlr: Rc<impl Fn(&DirEntry, usize) -> ()>) -> Result<(), DynError> {
+pub fn list_dir(path: PathBuf, hdlr: Rc<impl Fn(&DirEntry, usize)>) -> Result<(), DynError> {
     list_dir_helper(path, 0, hdlr)
 }
 
@@ -77,7 +77,7 @@ impl Display for ListError {
 impl Error for ListError {}
 
 /// Lists all the files in a directory, and renames a substring in the filename
-fn rename(path: PathBuf, from: &str, to: &str) -> Result<(), DynError> {
+pub fn rename(path: PathBuf, from: &str, to: &str) -> Result<(), DynError> {
     list_dir_2(path, 0, &|entry, _| {
         let fname = entry.file_name();
         let fname = match fname.into_string() {
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_rename() {
-        let res = rename(
+        let _res = rename(
             PathBuf::from("/mnt/chromeos/MyFiles/RPG/Morrow_Project"),
             "TheMorrowProject-",
             "",
