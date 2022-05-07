@@ -6,7 +6,8 @@ members = [
     "crossbow",
     "ignite",
     "reveles",
-    "lambda-example"
+    "lambda-example",
+    "utils"
 ]
 
 excludes = [

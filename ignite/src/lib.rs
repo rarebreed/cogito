@@ -24,17 +24,6 @@ pub fn mut_concat(left: &mut String, right: &str) {
     left.push_str(right)
 }
 
-pub fn basics(id: String) {
-    let mut ids = vec![];
-    ids.push(id);
-
-    // println!("id is {}", id); // doesn;t compile
-    let mut scores = vec![];
-    let score = 64;
-    scores.push(score);
-    println!("score is {}", score); // this works, because i32 implements Copy trait
-}
-
 trait Monoid {
     fn append(&self, rhs: Self) -> Self;
     fn empty(self) -> Self;
