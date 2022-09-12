@@ -1,7 +1,14 @@
 //! Module containing definitions of test meta data
 
-use chrono::{DateTime, Duration, Utc};
-use serde::{Serialize, Deserialize};
+use chrono::{
+    DateTime,
+    Duration,
+    Utc,
+};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// Different states for a test run
 #[derive(Serialize, Deserialize, Debug)]
@@ -9,7 +16,7 @@ pub enum RunStatus {
     /// Test passed all assertions
     Pass,
     /// Test failed one or more assertions
-    Fail,    
+    Fail,
     /// Test was not executed
     Skipped,
     /// test failed, but not due to assertion
@@ -27,10 +34,9 @@ pub enum LogPath {
         /// FIXME: make this an enum
         provider: String,
         /// The full path to the log
-        uri: String
-    }
+        uri: String,
+    },
 }
-
 
 /// Represents relevant data for a test run
 #[derive(Serialize, Deserialize, Debug)]

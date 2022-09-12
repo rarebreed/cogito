@@ -3,7 +3,7 @@
 #![deny(missing_docs)]
 
 /// A "typeclass" for a Functor
-/// 
+///
 /// TODO: When Generic Associated Types are in beta, use a GAT
 pub trait Functor {
     /// Represents the type that fmap takes
@@ -14,9 +14,9 @@ pub trait Functor {
 }
 
 /// A more intuitive form or compose, where order is from left to right
-/// 
+///
 /// Example:
-/// 
+///
 /// ```rust
 /// # use alonzo::pipe;
 /// let double = |x| { x * 2};
@@ -31,12 +31,12 @@ pub fn pipe<A, B, C>(f1: impl Fn(A) -> B, f2: impl Fn(B) -> C) -> impl Fn(A) -> 
 
 /// Takes an Iterator, and returns a list of pairs, where the first item
 ///
-/// Example: 
-/// 
+/// Example:
+///
 /// ```rust
 /// # use alonzo::pairs;
 /// let arg = vec![1, 2, 3];
-/// let paired = pairs(&arg); 
+/// let paired = pairs(&arg);
 /// println!("{:?}", paired); // returns [[1, 2], [2, 3], [3, 4]]
 /// ```
 ///
@@ -44,8 +44,7 @@ pub fn pipe<A, B, C>(f1: impl Fn(A) -> B, f2: impl Fn(B) -> C) -> impl Fn(A) -> 
 /// an Iterator Item is a refernce to the item and not the item itself, we also need to
 /// specify a lifetime.  This is why the type declaration is a bit ugly.
 pub fn pairs<'a, I, T>(it: I) -> Vec<Vec<&'a T>>
-where
-    I: IntoIterator<Item = &'a T>,
+    where I: IntoIterator<Item = &'a T>
 {
     let mut iter = it.into_iter();
     let mut first = iter.next();
@@ -55,7 +54,7 @@ where
         match (first, second) {
             (Some(f), Some(s)) => {
                 storage.push(vec![f, s]);
-            },
+            }
             _ => break,
         };
         first = second;
@@ -102,18 +101,17 @@ pub fn range(start: usize, end: usize) -> impl Iterator<Item = usize> {
 /// the collections is shorter than the other, it will stop zipping
 ///
 /// Example:
-/// 
+///
 /// ```rust
 /// # use alonzo::zip;
 /// let coll1 = vec![1, 2, 3, 4];
 /// let coll2 = ["a", "b", "c"];
-/// let zipped = zip(&coll1, &coll2); 
+/// let zipped = zip(&coll1, &coll2);
 /// println!("zipped is {:?}", zipped); // [(1, "a"), (2, "b"), (3, "c")]
 /// ```
 pub fn zip<'a, 'b, A, B, A1, B1>(coll1: A, coll2: B) -> Vec<(&'a A1, &'b B1)>
-where
-    A: IntoIterator<Item = &'a A1>,
-    B: IntoIterator<Item = &'b B1>,
+    where A: IntoIterator<Item = &'a A1>,
+          B: IntoIterator<Item = &'b B1>
 {
     let mut storage: Vec<(&'a A1, &'b B1)> = vec![];
     let mut iter1 = coll1.into_iter();
@@ -131,6 +129,49 @@ where
         };
     }
     storage
+}
+
+/// concatenates two str by creating a new String
+pub fn concat(left: &str, right: &str) -> String {
+    format!("{}{}", left, right)
+}
+
+/// concatenates a mut String with a str returning the modified mut String
+pub fn mut_concat(left: &mut String, right: &str) {
+    left.push_str(right)
+}
+
+trait Monoid {
+    fn append(&self, rhs: Self) -> Self;
+    fn empty(self) -> Self;
+}
+
+struct Foo {
+    inner: String,
+}
+
+struct IntWrapper {
+    inner: u64,
+}
+
+impl Monoid for IntWrapper {
+    fn append(&self, rhs: Self) -> Self {
+        IntWrapper { inner: self.inner + rhs.inner }
+    }
+
+    fn empty(self) -> Self {
+        self
+    }
+}
+
+impl Monoid for Foo {
+    fn append(&self, rhs: Self) -> Self {
+        Foo { inner: format!("{}{}", self.inner, rhs.inner) }
+    }
+
+    fn empty(self) -> Self {
+        self
+    }
 }
 
 #[cfg(test)]
