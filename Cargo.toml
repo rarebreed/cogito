@@ -9,6 +9,6 @@ members = [
     "lambda-example"
 ]
 
-excludes = [
+exclude = [
     "serverless-fe2o3"
 ]
