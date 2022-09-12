@@ -11,14 +11,3 @@ struct Message<T> {
     data: T
 }
 ```
-
-f = ["r", "e", "v", "e", "r", "s", "e", " ", "t", "h", "i", "s"]
-f.join("")
-  .split(" ")
-  .reverse()
-  .map(w => w.split(""))
-  .reduce((acc, n) => acc.concat(n))
-
-r = [list(word) for word in "".join(f).split(" ")[::-1]]
-map(lambda word: list(word), "".join(f).split(" ")[::-1])
-reduce(lambda acc, n: acc + n, [list(word) for word in "".join(f).split(" ")[::-1]])

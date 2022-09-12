@@ -1,5 +1,4 @@
 //! Data types representing tests, alarms and observations
-//!
 
 use crate::libs::meta::RunResult;
 
