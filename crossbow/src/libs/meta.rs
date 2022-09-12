@@ -2,8 +2,14 @@
 
 use std::collections::HashMap;
 
-use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+use chrono::{
+    DateTime,
+    Utc,
+};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// Test Case data
 #[derive(Serialize, Deserialize, Debug)]
@@ -15,7 +21,7 @@ pub struct TestCase {
     /// Metadata for the test
     pub metadata: Option<TestMetaData>,
     /// What ran the test
-    pub executor: Executor
+    pub executor: Executor,
 }
 
 /// Information about the entity that executes a test
@@ -26,7 +32,7 @@ pub struct Executor {
     /// Eg Jenkins, Travis, Airflow, local, etc
     pub executor_type: String,
     /// An identifier like a jenkins build number
-    pub id: String
+    pub id: String,
 }
 
 /// Data about the TestCase, such as dependencies
@@ -39,7 +45,7 @@ pub struct TestMetaData {
     /// Things which must exist before test runs, such as state value
     pub preconditions: HashMap<String, String>,
     /// Things which must be true after test runs
-    pub postconditions: HashMap<String, String>
+    pub postconditions: HashMap<String, String>,
 }
 
 /// Different states for a test run
@@ -48,7 +54,7 @@ pub enum RunStatus {
     /// Test passed all assertions
     Pass,
     /// Test failed one or more assertions
-    Fail,    
+    Fail,
     /// Test was not executed
     Skipped,
     /// test failed, but not due to assertion
@@ -66,10 +72,9 @@ pub enum LogPath {
         /// FIXME: make this an enum
         provider: String,
         /// The full path to the log
-        uri: String
-    }
+        uri: String,
+    },
 }
-
 
 /// Represents relevant data for a test run
 #[derive(Serialize, Deserialize, Debug)]
@@ -87,7 +92,7 @@ pub struct RunResult {
     /// Error details
     pub error_details: Option<String>,
     /// stack trace
-    pub stack_trace: Option<Vec<String>>
+    pub stack_trace: Option<Vec<String>>,
 }
 
 impl RunResult {
