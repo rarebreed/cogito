@@ -45,8 +45,7 @@ pub fn pipe<A, B, C>(f1: impl Fn(A) -> B, f2: impl Fn(B) -> C) -> impl Fn(A) -> 
 /// an Iterator Item is a reference to the item and not the item itself, we also need to
 /// specify a lifetime.  This is why the type declaration is a bit ugly.
 pub fn pairs<'a, I, T>(it: I) -> Vec<Vec<&'a T>>
-where
-    I: IntoIterator<Item = &'a T>,
+    where I: IntoIterator<Item = &'a T>
 {
     let mut iter = it.into_iter();
     let mut first = iter.next();
@@ -112,9 +111,8 @@ pub fn range(start: usize, end: usize) -> impl Iterator<Item = usize> {
 /// assert!(zipped[1] == (&2, &"b"))
 /// ```
 pub fn zip<'a, 'b, A, B, A1, B1>(coll1: A, coll2: B) -> Vec<(&'a A1, &'b B1)>
-where
-    A: IntoIterator<Item = &'a A1>,
-    B: IntoIterator<Item = &'b B1>,
+    where A: IntoIterator<Item = &'a A1>,
+          B: IntoIterator<Item = &'b B1>
 {
     let mut storage: Vec<(&'a A1, &'b B1)> = vec![];
     let mut iter1 = coll1.into_iter();
@@ -132,6 +130,49 @@ where
         };
     }
     storage
+}
+
+/// concatenates two str by creating a new String
+pub fn concat(left: &str, right: &str) -> String {
+    format!("{}{}", left, right)
+}
+
+/// concatenates a mut String with a str returning the modified mut String
+pub fn mut_concat(left: &mut String, right: &str) {
+    left.push_str(right)
+}
+
+trait Monoid {
+    fn append(&self, rhs: Self) -> Self;
+    fn empty(self) -> Self;
+}
+
+struct Foo {
+    inner: String,
+}
+
+struct IntWrapper {
+    inner: u64,
+}
+
+impl Monoid for IntWrapper {
+    fn append(&self, rhs: Self) -> Self {
+        IntWrapper { inner: self.inner + rhs.inner }
+    }
+
+    fn empty(self) -> Self {
+        self
+    }
+}
+
+impl Monoid for Foo {
+    fn append(&self, rhs: Self) -> Self {
+        Foo { inner: format!("{}{}", self.inner, rhs.inner) }
+    }
+
+    fn empty(self) -> Self {
+        self
+    }
 }
 
 #[cfg(test)]
