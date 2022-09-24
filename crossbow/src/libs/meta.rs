@@ -2,13 +2,6 @@
 
 use std::collections::HashMap;
 
-<<<<<<< HEAD
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-||||||| 6976bb8
-use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
-=======
 use chrono::{
     DateTime,
     Utc,
@@ -17,7 +10,6 @@ use serde::{
     Deserialize,
     Serialize,
 };
->>>>>>> main
 
 /// Test Case data
 #[derive(Serialize, Deserialize, Debug)]
