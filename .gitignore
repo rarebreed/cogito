@@ -4,3 +4,4 @@
 .bloop/
 **/target/
 project/
+notebooks/.ipynb_checkpoints/

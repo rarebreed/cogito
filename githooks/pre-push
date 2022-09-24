@@ -1,40 +1,5 @@
 #!/bin/zsh
 
 # githook to run before pushing 
-# - Check if we need to run cargo fmt
-# - cargo build
-# - cargo test
-# - cargo audit 
-
-echo "Checking if there are updated crates..."
-#cargo update --dry-run
-echo "################################"
-
-echo "Running clippy..."
-cargo clippy
-echo "################################"
-
-# get files which have changed and are rust files
-echo "Checking if cargo fmt is required..."
-git diff HEAD~1 --name-only | grep .rs
-changed=`git diff HEAD~1 --name-only | grep .rs`
-if [ ! -z $"changed "]; then
-  array=($(echo $changed))
-  for i in $array; do
-    echo "$i"
-    rustfmt -l --check $i 
-  done
-fi
-echo "################################"
-
-echo "Building debug..."
-cargo build
-echo "################################"
-
-echo "Running tests..."
-cargo test -- --nocapture
-echo "################################"
-
-echo "Running audit check..."
-echo "################################"
-#cargo audit
+echo "Running cargo audit"
+cargo audit
