@@ -19,8 +19,8 @@ pub trait Functor {
 ///
 /// ```rust
 /// # use alonzo::pipe;
-/// let double = |x| { x * 2};
-/// let plus10 = |x| { x + 10};
+/// let double = |x| { x * 2 };
+/// let plus10 = |x| { x + 10 };
 /// let piped = pipe(double, plus10);
 /// let answer = piped(3);  // should equal 16
 /// assert!(answer == 16);
@@ -38,10 +38,11 @@ pub fn pipe<A, B, C>(f1: impl Fn(A) -> B, f2: impl Fn(B) -> C) -> impl Fn(A) -> 
 /// let arg = vec![1, 2, 3];
 /// let paired = pairs(&arg);
 /// println!("{:?}", paired); // returns [[1, 2], [2, 3], [3, 4]]
+/// assert!(paired[0] == vec![&1, &2])
 /// ```
 ///
 /// In order to make this work for any kind of iterator, we need to use generics.  Since
-/// an Iterator Item is a refernce to the item and not the item itself, we also need to
+/// an Iterator Item is a reference to the item and not the item itself, we also need to
 /// specify a lifetime.  This is why the type declaration is a bit ugly.
 pub fn pairs<'a, I, T>(it: I) -> Vec<Vec<&'a T>>
     where I: IntoIterator<Item = &'a T>
@@ -107,6 +108,7 @@ pub fn range(start: usize, end: usize) -> impl Iterator<Item = usize> {
 /// let coll2 = ["a", "b", "c"];
 /// let zipped = zip(&coll1, &coll2);
 /// println!("zipped is {:?}", zipped); // [(1, "a"), (2, "b"), (3, "c")]
+/// assert!(zipped[1] == (&2, &"b"))
 /// ```
 pub fn zip<'a, 'b, A, B, A1, B1>(coll1: A, coll2: B) -> Vec<(&'a A1, &'b B1)>
     where A: IntoIterator<Item = &'a A1>,

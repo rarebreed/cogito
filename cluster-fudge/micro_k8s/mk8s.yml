@@ -5,5 +5,5 @@
   become: true
   become_method: sudo
   roles:
-  - update
-  - setup
+    #- update
+    - setup

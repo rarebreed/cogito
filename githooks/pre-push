@@ -1,7 +1,5 @@
-#!/bin/sh
+#!/bin/zsh
 
 # githook to run before pushing 
-# - Check if we need to run cargo fmt
-# - cargo build
-# - cargo test
-# - cargo audit 
+echo "Running cargo audit"
+cargo audit

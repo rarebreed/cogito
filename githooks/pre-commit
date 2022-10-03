@@ -1,0 +1,36 @@
+#!/bin/zsh
+
+# githook to run before committing 
+# - Check if we need to run cargo fmt
+# - cargo build
+# - cargo test
+# - cargo audit 
+
+echo "Checking if there are updated crates..."
+#cargo update --dry-run
+echo "################################"
+
+echo "Running clippy..."
+cargo clippy
+echo "################################"
+
+echo "Checking if format is needed"
+cargo +nightly fmt --check
+if [ $? != 0 ];then 
+  echo "Please run cargo +nightly fmt"
+  exit 1
+fi
+echo "################################"
+
+echo "Building debug..."
+cargo build
+echo "################################"
+
+echo "Building release..."
+cargo build --release
+echo "################################"
+
+echo "Running tests..."
+cargo test -- --nocapture
+echo "################################"
+

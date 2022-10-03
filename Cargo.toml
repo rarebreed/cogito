@@ -6,9 +6,16 @@ members = [
     "commander",
     "crossbow",
     "reveles",
-    "lambda-example"
+    "lambda-example",
+    "utils"
 ]
 
 exclude = [
     "serverless-fe2o3"
 ]
+
+[workspace.dependencies]
+clap = "^3"
+tokio = { version = "^1", features = ["full"] }
+chrono = { version = "^0.4", features = ["serde"] }
+serde = { version = "^1.0", features = ["derive"] }
