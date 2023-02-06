@@ -48,6 +48,11 @@ pub struct TestMetaData {
     pub postconditions: HashMap<String, String>,
 }
 
+/// SystemDependencies are external infrastructure dependencies that your project relies on.
+///
+/// For example, microservices, storage, other data jobs
+pub struct SystemDependencies {}
+
 /// Different states for a test run
 #[derive(Serialize, Deserialize, Debug)]
 pub enum RunStatus {

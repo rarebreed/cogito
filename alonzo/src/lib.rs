@@ -134,7 +134,7 @@ pub fn zip<'a, 'b, A, B, A1, B1>(coll1: A, coll2: B) -> Vec<(&'a A1, &'b B1)>
 
 /// concatenates two str by creating a new String
 pub fn concat(left: &str, right: &str) -> String {
-    format!("{}{}", left, right)
+    format!("{left}{right}")
 }
 
 /// concatenates a mut String with a str returning the modified mut String
@@ -183,7 +183,7 @@ mod tests {
     fn it_works() {
         let arg = vec![1, 2, 3, 4];
         let paired = pairs(&arg);
-        println!("{:?}", paired);
+        println!("{paired:?}");
 
         let slice = &[1, 2, 3, 4];
         let paired2 = pairs(slice);
@@ -196,6 +196,6 @@ mod tests {
         let coll2 = ["a", "b", "c"];
 
         let zipped = zip(&coll1, &coll2);
-        println!("{:?}", zipped);
+        println!("{zipped:?}");
     }
 }
